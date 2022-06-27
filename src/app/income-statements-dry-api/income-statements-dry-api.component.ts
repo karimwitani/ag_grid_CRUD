@@ -90,7 +90,7 @@ export class IncomeStatementsDryApiComponent implements OnInit {
 				return {
 					headerName: fieldEntry.date,
 					field: fieldEntry.date,
-					editable: false,
+					editable: true,
 				};
 			}))
 			// debug
