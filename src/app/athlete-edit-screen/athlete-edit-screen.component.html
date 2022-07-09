@@ -1,0 +1,19 @@
+<div #panel class="input-panel" [style.width]="width" [style.left]="left" [style.top]="top" [style.height]="height">
+    <div class="editGrid">
+
+        <ag-grid-angular [style.width]="width" [style.left]="left" [style.top]="top" [style.height]="height"
+            class="ag-theme-alpine" [columnDefs]="columnDefs" [rowData]="rowData" (gridReady)="onGridReady($event)"
+            [frameworkComponents]="frameworkComponents" (rowValueChanged)="onRowValueChanged($event)"
+            [gridOptions]="gridOptions">
+        </ag-grid-angular>
+    </div>
+    <div>
+        <button class="btn btn-primary" (click)="insertNewResult()" style="float: right">Add New Row</button>
+        <button class="btn btn-primary" (click)="saveTeam()" [disabled]="!isValidTeam()" style="float: right">
+            Save Athlete
+        </button>
+        <button class="btn btn-primary" (click)="cancelInsert()" style="float: right">
+            Cancel Inserts
+        </button>
+    </div>
+</div>

@@ -21,10 +21,10 @@ export class IncomeStatementDryComponent {
   constructor(private dataSvc: DataService) {
     let IC_DATA = dataSvc.getData();
 
-    this.flaskData = this.dataSvc.getFlaskData()
-    
+    //this.flaskData = this.dataSvc.getFlaskData()
+
     this.rowData = dataSvc.getFields()
-      .map((field:any) => {
+      .map((field: any) => {
 
         let itemValues: any = {
           field: field.name

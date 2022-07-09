@@ -1,0 +1,34 @@
+<p>nba-grid works!</p>
+
+<div style=" width: 100%;">
+    <ag-grid-angular 
+        #grid style="width: 100%; height: 500px;" 
+        class="ag-theme-alpine" 
+        suppressRowClickSelections
+        rowSelection="multiple" 
+        [rowData]="gridData"
+        [columnDefs]="gridCols" 
+        [gridOptions]="gridOptions" 
+        (cellValueChanged)="onCellValueChanged($event)" 
+        (gridReady)="onGridReady($event)" 
+        (cellClicked)="onCellClicked($event)" 
+        (rowEditingStopped)="onRowEditingStopped($event)"
+        (rowEditingStarted)="onRowEditingStarted($event)">
+    </ag-grid-angular>
+    <div style="display: block; width: 100%; display:inline-block; margin-top: 1.5em">
+
+        <button style="width: 50%;" (click)="deleteSelectedRows()" [disabled]="!rowsSelected()">Delete Selected
+            Row
+        </button>
+
+        <button style="width: 50%;" (click)="insertNewRow()">Add new row</button>
+
+    </div>
+</div>
+<ng-template [ngIf]="editInProgress">
+    <app-athlete-edit-screen [containerCoords]="containerCoords" (onEditCancel)="cancelEditScreen()">
+    </app-athlete-edit-screen>
+</ng-template>
+
+
+<!-- (gridReady)="onGridReady($event)" -->

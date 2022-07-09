@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { DataService } from '../data.service';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { lastValueFrom, Observable } from 'rxjs';
 import { ColDef, ColumnApi, GridApi } from 'ag-grid-community';
 
@@ -24,27 +24,34 @@ export class IncomeStatementsDryApiComponent implements OnInit {
 
 
 
-	constructor(private dataSvc: DataService) {
-
-
-
-
-	}
+	constructor(private dataSvc: DataService) { }
 
 	ngOnInit(): void {
-		console.log('getPromiseData about to be called')
+
+		// console.log('nbaDataInNgInit about to be called') //debug
+		var nbaDataInNgInit = this.getGridNBAData().then((nbaTeamArray: NBATeamInterace[]) => {
+			nbaTeamArray.forEach(teamFromArray => {
+				//console.log(teamFromArray); // debug
+			})
+		})
+		// console.log('beyond nbaDataInNgInit') //debug
+		// console.log(nbaDataInNgInit) //debug
+
+
+		// console.log('getPromiseData about to be called') //debug
 		this.getPromiseData().then((dataArray: any) => {
 
-			//debug	
+
 			this.serverData = dataArray;
-			console.log(this.serverData)
+			// console.log(this.serverData) //debug
 
 		}).then(() => {
 			this.getPromiseFields().then((fieldData: any) => {
 
-				//debug	
+
+
 				this.fields = fieldData;
-				console.log(this.fields)
+				// console.log(this.fields) //debug	
 			})
 		}).then(() => {
 			this.fields.forEach((fieldObj: any) => {
@@ -64,14 +71,15 @@ export class IncomeStatementsDryApiComponent implements OnInit {
 				this.rowData.push(rowEntry);
 
 				this.serverData.forEach((serverDataEntry: any) => {
-					console.log(serverDataEntry);
+					// debug
+					// console.log(serverDataEntry);
 					rowEntry[serverDataEntry['date']] = serverDataEntry[rowEntry['field']];
 				});
 
 			});
 
 			// debug
-			console.log(this.rowData);
+			// console.log(this.rowData);
 
 
 
@@ -94,7 +102,7 @@ export class IncomeStatementsDryApiComponent implements OnInit {
 				};
 			}))
 			// debug
-			console.log(this.columnDefs);
+			// console.log(this.columnDefs);
 
 
 		}).then(() => {
@@ -103,6 +111,10 @@ export class IncomeStatementsDryApiComponent implements OnInit {
 		});
 
 
+		// 	.then((nbaData: any) => {
+		// 	console.log('getGridNBAData called')
+		// 	console.log(nbaData);
+		// })
 
 
 
@@ -134,7 +146,7 @@ export class IncomeStatementsDryApiComponent implements OnInit {
 				serverArray.push(entry);
 			})
 			// debug
-			console.log(serverArray);
+			// console.log(serverArray);
 
 		})
 
@@ -166,29 +178,41 @@ export class IncomeStatementsDryApiComponent implements OnInit {
 				let yearlyIcomeStatement: any = dataEntry;
 				rowEntry[dataEntry['date']] = yearlyIcomeStatement[field['key']];
 			})
-
-			// // debug
-			// console.log(rowEntry);
-			// rowData.push(rowEntry);
-
-			// // debug
-			// console.log(rowData);
 		})
 
-
-
-		// debug
-		// console.log('serverData$');
-		// console.log(serverData$);
-		// //console.log(serverData$.length);
-		// console.log(typeof (serverData$));
 
 
 
 
 	}
 
+	async getGridNBAData_2() {
+		var serverArray: NBATeamInterace[] = [];
+		await this.dataSvc.getNbaData().then(observable$ => {
+			observable$.subscribe(serverData => {
+				// console.log(entry); //debug
+				Object.entries(serverData).forEach(([key, value], index) => {
+					var team: NBATeamInterace = {
+						abbreviation: value['abbreviation'],
+						city: value['city'],
+						conference: value['conference'],
+						division: value['division'],
+						full_name: value['full_name'],
+						id: value['id'],
+						name: value['name']
+					};
+					// console.log(team); //debug
+					serverArray.push(team)
+				})
+				// nbaData = dataArray;
+				// console.log(nbaData);
 
+			})
+
+		});
+		// console.log(serverArray); //debug
+		return serverArray;
+	}
 
 
 	// V2
@@ -204,6 +228,14 @@ export class IncomeStatementsDryApiComponent implements OnInit {
 		return promiseData
 	}
 
+	async getGridNBAData() {
+		var nbaData: any;
+		await this.dataSvc.getNBAPromise().then(nbaTeamsArray => {
+			nbaData = nbaTeamsArray;
+		})
+		return nbaData;
+	}
+
 	async getPromiseFields() {
 		return new Promise(resolve => {
 			let fields = this.dataSvc.getFields()
@@ -215,7 +247,44 @@ export class IncomeStatementsDryApiComponent implements OnInit {
 			resolve(fields);
 		})
 	}
+	httpOptions = {
+		headers: new HttpHeaders({
+			'Content-Type': 'application/json',
+			Authorization: 'my-auth-token'
+		})
+	};
 
-
-
+	onCellValueChanged(event: any) {
+		//debug
+		let Form = JSON.stringify(event.data);
+		var accss;
+		console.log('value changes');
+		console.log(event);
+		console.log(event.node);
+		// this.http.post('http://localhost:5000/editCellData', event, this.httpOptions).pipe()
+		// this.http.get('http://localhost:5000/editCellData').subscribe(data => {
+		//     console.log(`post request return ${data}`);
+		// });
+		this.dataSvc.postEditedCellData(Form).subscribe(
+			article => {
+				// #console.log(article);
+			},
+			err => {
+				console.log(err);
+			}
+		);
+	}
 }
+
+
+interface NBATeamInterace {
+	abbreviation: string,
+	city: string,
+	conference: string,
+	division: string,
+	full_name: string,
+	id: number
+	name: string
+}
+
+

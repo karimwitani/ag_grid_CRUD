@@ -8,12 +8,12 @@ import { Title } from '@angular/platform-browser';
 })
 export class AppComponent {
   title = 'Karim IC';
-  incomeStatement:any;
+  incomeStatement: any;
 
-  constructor(titleService: Title){
+  constructor(titleService: Title) {
     titleService.setTitle(this.title);
   }
-  
-  ngOnInit(){
+
+  ngOnInit() {
   }
 }
