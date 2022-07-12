@@ -9,11 +9,13 @@
     [suppressRowClickSelection]='true'
     (gridReady)="onGridReady($event)" 
     (rowSentForEditing)="addEditRow($event)">
+    [tooltipShowDelay]="tooltipShowDelay"
+    [tooltipHideDelay]="tooltipHideDelay"
 </ag-grid-angular>
 
 <div>
-    <button class="btn btn-success action-button" data-action="commitChanges" (click)="commitChange()"> Commit Changes </button>
+    <button class="btn btn-success action-button" data-action="commitChanges" (click)="commitChange()" [disabled]="inputPresentAndValide"> Commit Changes </button>
     <button class="btn btn-warning action-button"  data-action="removeSelected" (click)="removeSelected($event)" [disabled]="inputPresentAndValide" > Remove Selected  </button>
-    <button class="btn btn-secondary action-button"  data-action="addRow" (click)="addEditRow($event)" [disabled]="inputPresentAndValide" > Add New Row  </button>
+    <button class="btn btn-secondary action-button"  data-action="addRow" (click)="addEditRow($event)"  > Add New Row  </button>
     <!-- <button style="width: 50%;" (click)="getSelectedRows()">Get Selected Rows </button> -->
 </div>

@@ -1,5 +1,5 @@
 //packages
-import { AfterViewInit, Component, ElementRef, OnInit, ViewChild, Output, EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, OnInit, ViewChild, Output, EventEmitter, OnChanges, SimpleChanges, OnDestroy } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { ColumnApi, GridApi } from 'ag-grid-community';
 
@@ -16,7 +16,7 @@ import { MatDatePickerComponent } from '../mat-date-picker/mat-date-picker.compo
   styles: [
   ]
 })
-export class NbaDualGridComponent implements OnInit {
+export class NbaDualGridComponent implements OnInit, OnDestroy {
   // gridApi and columnApi
   private api: GridApi;
   private columnApi: ColumnApi;
@@ -158,6 +158,14 @@ export class NbaDualGridComponent implements OnInit {
 
           //edit the params.data to include the action
           params.data['action'] = action;
+          params.data['validation'] = {};
+          for (const [key, value] of Object.entries(params.data)) {
+            if (key !== 'validation') {
+              params.data['validation'][`validation_${key}`] = true
+            }
+
+          }
+          // console.log("data passed to secondary grid:")
           // console.log(params)//debug
 
           //add edited row to list of rows in secondary grid
@@ -207,6 +215,12 @@ export class NbaDualGridComponent implements OnInit {
     });
   }
 
+  ngOnDestroy() {
+    console.log("ngOnDestroy called")
+    console.log("ngOnDestroy called again")
+    this.api.destroy();
+  }
+
 }
 
 function multyActionCellRenderer(params: any) {
@@ -250,6 +264,6 @@ function multyActionCellRenderer(params: any) {
 
 
 var filterParams = {
-  buttons: ['apply','reset'],
-  closeOnApply:true
+  buttons: ['apply', 'reset'],
+  closeOnApply: true
 }

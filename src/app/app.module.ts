@@ -27,6 +27,9 @@ import { MutlyActionButtonRendererComponent } from './mutly-action-button-render
 import { NbaDualGridComponent } from './nba-dual-grid/nba-dual-grid.component';
 import { NbaSecondaryGridComponent } from './nba-secondary-grid/nba-secondary-grid.component';
 import { CancelEditButtonRendererComponent } from './cancel-edit-button-renderer/cancel-edit-button-renderer.component';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import { CellValidationRendererComponent } from './cell-validation-renderer/cell-validation-renderer.component';
+import { ValidationCustomTooltipComponent } from './validation-custom-tooltip/validation-custom-tooltip.component';
 
 
 
@@ -48,6 +51,8 @@ import { CancelEditButtonRendererComponent } from './cancel-edit-button-renderer
     NbaDualGridComponent,
     NbaSecondaryGridComponent,
     CancelEditButtonRendererComponent,
+    CellValidationRendererComponent,
+    ValidationCustomTooltipComponent,
     
 
   ],
@@ -63,7 +68,8 @@ import { CancelEditButtonRendererComponent } from './cancel-edit-button-renderer
     MatDatepickerModule,
     MatInputModule,
     MatNativeDateModule,
-    MatButtonModule
+    MatButtonModule,
+    FontAwesomeModule
   ],
   providers: [],
   bootstrap: [AppComponent],
