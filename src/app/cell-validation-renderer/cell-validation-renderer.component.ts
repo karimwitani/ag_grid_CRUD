@@ -22,7 +22,7 @@ export class CellValidationRendererComponent implements ICellRendererAngularComp
     // console.log(params) //debug
     let validation_status_name = params?.colDef?.colId
     // console.log("validation_status_name")
-    console.log(validation_status_name)
+    // console.log(validation_status_name)
 
     if (validation_status_name) {
       this.icon1 = params.data.validation[validation_status_name] === true ? faCheck : faXmark;

@@ -29,8 +29,8 @@ import { ValidationCustomTooltipComponent } from '../validation-custom-tooltip/v
 })
 export class NbaSecondaryGridComponent implements OnInit, OnChanges, OnDestroy {
   // gridApi and columnApi
-  private api: GridApi;
-  private columnApi: ColumnApi;
+  private api!: GridApi;
+  private columnApi!: ColumnApi;
   rowData: any[] = [];
   columnDefs: any[] = [];
   rowSelection = 'multiple'
@@ -98,7 +98,10 @@ export class NbaSecondaryGridComponent implements OnInit, OnChanges, OnDestroy {
           force: true
         });
       }
-      this.inputPresentAndValide = this.rowData.length > 0 ? false : true;
+      // this.inputPresentAndValide = this.rowData.length > 0 ? false : true;
+
+      this.validatePostingPossible()
+
     }
   }
 
@@ -116,24 +119,8 @@ export class NbaSecondaryGridComponent implements OnInit, OnChanges, OnDestroy {
       this.createColumnDef("full_name", "Full Name", this.tenCharacterValidator, this.stringParser),
       this.createValidationStatusColumn("abbreviation", "Name should be less than 10 characters"),
       this.createColumnDef("abbreviation", "Abreviation", this.tenCharacterValidator, this.stringParser),
-      {
-        headerName: 'City',
-        field: 'city',
-        editable: true,
-        valueGetter: (params: ValueGetterParams) => {
-          return params.data.city;
-        },
-        valueSetter: (params: ValueSetterParams) => {
-          var city = params.newValue;
-          if (city.length < 15) {
-            params.data.city = city
-            return true
-          }
-          else {
-            return false
-          }
-        }
-      },
+      this.createValidationStatusColumn("city", "City should be less than 10 characters"),
+      this.createColumnDef("city", "City", this.tenCharacterValidator, this.stringParser),
       {
         headerName: 'Conference',
         field: 'conference',
@@ -166,9 +153,19 @@ export class NbaSecondaryGridComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   addEditRow($event: any) {
-    console.log("addEditRow called within secondary grid") //debug 
-    console.log($event) //debug 
-    let newRow = { action: 'insert', lastValidation: true }
+    // console.log("addEditRow called within secondary grid") //debug 
+    // console.log($event) //debug 
+    let validation_object = {
+      'validation_abbreviation': false,
+      'validation_city': false,
+      'validation_full_name': false,
+      'validation_name': false,
+      'validation_action': true,
+      'validation_conference': true,
+      'validation_date_founded': true,
+      'validation_division': true
+    }
+    let newRow = { action: 'insert', validation: validation_object }
     this.api.applyTransaction(
       {
         add: [newRow],
@@ -180,15 +177,44 @@ export class NbaSecondaryGridComponent implements OnInit, OnChanges, OnDestroy {
       colKey: 'name'
     });
     this.rowData.push(newRow)
-    console.log(this.rowData)
+    // console.log(this.rowData)
   }
 
   commitChange() {
-    this.http.post(`http://localhost:5000/`, this.rowData, this.dataSvc.httpOptions).subscribe(response => {
+    interface postDataType { [key: string]: any }
+    let postData:postDataType={
+    }
+
+    this.rowData.forEach((row:any)=>{
+      console.log(row) //debug
+      let action=row.action;
+      if(action=='insert'){
+        if (!postData.hasOwnProperty('insert')){
+          postData['insert']=[]
+        }
+        postData['insert'].push(row)
+      }else if (action=='delete'){
+        if (!postData.hasOwnProperty('delete')){
+          postData['delete']=[]
+        }
+        postData['delete'].push(row)
+      }else if (action=='edit'){
+        if (!postData.hasOwnProperty('edit')){
+          postData['edit']=[]
+        }
+        postData['edit'].push(row)
+      }else{
+        console.log(`action not recognized: ${action}`) //debug
+      }
+    })
+
+    console.log("postData") //debug
+    console.log(postData) //debug
+    this.http.post(`http://localhost:5000/editCellData`, postData, this.dataSvc.httpOptions).subscribe(response => {
       console.log(`post request return`); //debug
       console.log(response); //debug
     });
-    window.location.reload()
+    // window.location.reload()
   }
 
   removeSelected($event: any) {
@@ -245,7 +271,7 @@ export class NbaSecondaryGridComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   createColumnDef(field: string, headerName: string, validationFn: any, valueParser: any) {
-    console.log("createColumnDef called") //debug
+    // console.log("createColumnDef called") //debug
     return {
       headerName: headerName,
       field: field,
@@ -259,19 +285,13 @@ export class NbaSecondaryGridComponent implements OnInit, OnChanges, OnDestroy {
     };
   }
 
-  // _valueGetter(params:any,field:any){
-  //   console.log("_valueGetter called")
-  //   console.log("_valueGetter.params")
-  //   console.log(params)
-  //   return params.data[field] ? params.data[field] : "";
-  // }
-
   createValidationStatusColumn(field: any, validationFailedMsg = "", headerName = "") {
-    console.log("createValidationStatusColumn called") //debug
+    // console.log("createValidationStatusColumn called") //debug
 
 
     return {
       colId: `validation_${field}`,
+      headerName: `validation_${field}`,
       valueGetter: (params: any) => {
         // console.log("createValidationStatusColumn.params") //debug
         // console.log(params) //debug
@@ -279,33 +299,14 @@ export class NbaSecondaryGridComponent implements OnInit, OnChanges, OnDestroy {
         // console.log(field) //debug
         params.data[field]
       },
-      headerName,
       width: 10,
       type: 'leftAligned',
       cellRenderer: CellValidationRendererComponent,
       suppressMenu: true,
       minWidth: 25,
       tooltipComponent: ValidationCustomTooltipComponent,
+      tooltipComponentParams: { validationColumn: `validation_${field}`, validationFailedMsg: validationFailedMsg },
       tooltipValueGetter: toolTipValueGetter,
-      // (params: ITooltipParams) => {
-      //   console.log('tooltipValueGetter called') //debug
-      //   console.log('tooltipValueGetter.params') //debug
-      //   console.log(params) //debug
-      //   let isFieldValid = params.data['validation'][`validation_${field}`] === true;
-      //   console.log('isFieldValid') //debug
-      //   console.log(isFieldValid) //debug
-
-      //   if (isFieldValid) {
-      //     return "";
-      //   } else {
-      //     return {
-      //       field,
-      //       lastValidation: params.data['validation'][`validation_${field}`],
-      //       validationFailedMsg
-      //     };
-      //   }
-
-      // }
     };
   }
 
@@ -320,7 +321,7 @@ export class NbaSecondaryGridComponent implements OnInit, OnChanges, OnDestroy {
       this._onSuccess(params, params.newValue),
       this._onFail(params)
     );
-
+    this.validatePostingPossible();
     return true;
   };
 
@@ -422,35 +423,30 @@ export class NbaSecondaryGridComponent implements OnInit, OnChanges, OnDestroy {
     this.api.destroy();
   }
 
+  validatePostingPossible() {
+    // console.log("validatePostingPossible called")//debug
+    for (let row of this.rowData) {
+      // console.log(Object.values(row['validation']))//debug
+      if (Object.values(row['validation']).some(isFalse)) {
+        this.inputPresentAndValide = false;
+        console.log("validatePostingPossible failed")//debug
+        break
+      } else {
+        this.inputPresentAndValide = true;
+      }
+    }
+  }
+
 
 }
 
+const isFalse = (elem: any) => elem == false;
 
-class CustomTooltip {
-  eGui: HTMLDivElement;
-  init(params: any) {
-    console.log("CustomTooltip called") //debug
-    console.log("CustomTooltip.params") //debug
-    console.log(params) //debug
-    this.eGui = document.createElement("div");
-    this.eGui.classList.add("custom-tooltip");
-
-    let { field, lastValidation, validationFailedMsg } = params.value;
-
-    this.eGui.innerHTML = `
-        <div class="validation-msg"> 
-          FIELD-${field.toUpperCase()} - invalid value:  
-          "<span class="invalid-value"> ${lastValidation} </span>", 
-          ${validationFailedMsg}
-        </div> 
-    `;
-  }
-  getGui() {
-    return this.eGui;
-  }
+const toolTipValueGetter = (params: ITooltipParams) => {
+  // console.log("toolTipValueGetter called") //debug
+  // console.log("toolTipValueGetter.params") //debug
+  // console.log(params) //debug
+  return ({
+    value: params,
+  });
 }
-
-
-const toolTipValueGetter = (params: ITooltipParams) => ({
-  value: params,
-});

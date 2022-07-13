@@ -18,8 +18,8 @@ import { MatDatePickerComponent } from '../mat-date-picker/mat-date-picker.compo
 })
 export class NbaDualGridComponent implements OnInit, OnDestroy {
   // gridApi and columnApi
-  private api: GridApi;
-  private columnApi: ColumnApi;
+  private api!: GridApi;
+  private columnApi!: ColumnApi;
   rowData: any[] = [];
   columnDefs: any[] = [];
   gridData: any;
@@ -162,8 +162,9 @@ export class NbaDualGridComponent implements OnInit, OnDestroy {
           for (const [key, value] of Object.entries(params.data)) {
             if (key !== 'validation') {
               params.data['validation'][`validation_${key}`] = true
-            }
 
+            }
+            // console.log(params.data['validation'])//debug
           }
           // console.log("data passed to secondary grid:")
           // console.log(params)//debug

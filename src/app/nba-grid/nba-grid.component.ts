@@ -25,8 +25,8 @@ import { MatDatePickerComponent } from '../mat-date-picker/mat-date-picker.compo
 })
 export class NbaGridComponent implements OnInit, AfterViewInit {
   // gridApi and columnApi
-  private api: GridApi;
-  private columnApi: ColumnApi;
+  private api!: GridApi;
+  private columnApi!: ColumnApi;
   rowData: any[] = [];
   columnDefs: any[] = [];
   gridData: any;
@@ -35,7 +35,7 @@ export class NbaGridComponent implements OnInit, AfterViewInit {
 
   // logical variables
   public editInProgress: boolean = false;
-  public containerCoords: {};
+  public containerCoords= {};
   private editRowIndex: any = null;
 
 
@@ -139,7 +139,7 @@ export class NbaGridComponent implements OnInit, AfterViewInit {
   };
 
   async getGridNBAData() {
-    console.log("getGridNBAData called: ") //debug
+    // console.log("getGridNBAData called: ") //debug
 
     var nbaData: any;
     await this.dataSvc.getNBAPromise().then(nbaTeamsArray => {
